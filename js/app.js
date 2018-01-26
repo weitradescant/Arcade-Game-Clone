@@ -8,6 +8,10 @@ const Enemy = function(x,y,s) {   //虫子 参数为横坐标，纵坐标，基�
 
 Enemy.prototype.update = function(dt) {   //虫子移动
 	this.x += this.s * dt;
+	if (this.x > 504) {    //到底以后循环出现在左侧
+		this.x = -101;
+		this.y = 64 + 85 * Math.floor(2.9 * Math.random())   //*(0-2的数字)
+	}
 };
 
 
@@ -15,7 +19,7 @@ Enemy.prototype.render = function() {     //渲染虫子
 	ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
 };
 
-Enemy.prototype.checkCollision = function () {   //检测碰撞
+Enemy.prototype.checkCollisions = function () {   //检测碰撞
 	if (this.y === player.y && this.x - player.x <= 80 && player.x - this.x <= 80) {
 		player.y = 404;
 	}
@@ -29,9 +33,10 @@ const Player = function(x,y) {   //玩家
 };
 
 
-
-Player.prototype.update = function(dt) {
-
+Player.prototype.update = function() {  //判断胜利
+	if (this.y === -21) {
+		setTimeout(win,1);
+	}
 };
 
 Player.prototype.handleInput = function(keyCode) {  //玩家的上下左右控制
@@ -52,22 +57,35 @@ Player.prototype.handleInput = function(keyCode) {  //玩家的上下左右控�
 Player.prototype.render = function() {    //渲染玩家
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
 };
-
-const allEnemies = [new Enemy(270,149,1)];
+const bug1 = new Enemy(-101,149,50);
+const bug2 = new Enemy(-101,64,80);
+const bug3 = new Enemy(-101,234,110);
+const allEnemies = [bug1,bug2,bug3];
 const player = new Player(202,404);
 //    canvas.width = 505;  -101~505          
 //    canvas.height = 606;
-//       0 101 202 303 404
-//    0
-//   64   e
+//   y\x  0 101 202 303 404
+//   -21
+//    64  e
 //   149  e
 //   234  e
 //   319
 //   404
 //
-// 现在实例化你的所有对象
-// 把所有敌人的对象都放进一个叫 allEnemies 的数组里面
-// 把玩家对象放进一个叫 player 的变量里面
+function win(){	
+	player.y = 404;
+	if (allEnemies.length <= 6) {
+		alert("恭喜你到达对岸，增加难度再来一次吧！");
+		addbug();
+	} else {
+		alert("你已经通过了最高难度7只虫子，不可思议！再来一次吧！");
+	}
+}
+
+function addbug() {
+	const obj = new Enemy(-101,149,110 + 25 * (allEnemies.length - 2));
+	allEnemies.push(obj);
+}
 
 document.addEventListener('keydown', function(e) {
     const allowedKeys = {
